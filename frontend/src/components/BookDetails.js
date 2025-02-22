@@ -62,6 +62,37 @@ const BookDetails = () => {
     return null;
   }
 
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await fetch(`/api/books/${id}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({
+          rating,
+          text: review
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit review');
+      }
+
+      const updatedBook = await response.json();
+        setBook(updatedBook);
+        setReview('');
+        setRating(5);
+      } catch (err) {
+        console.error('Error submitting review:', err);
+        setError('Failed to submit review. Please try again.');
+      }
+  };
+
+
   return (
     <div className={styles.container}>
       <button onClick={() => navigate(-1)} className={styles.backButton}>
@@ -125,36 +156,10 @@ const BookDetails = () => {
       </div>
     </div>
   );
+
+  
 };
 
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const authToken = localStorage.getItem('authToken');
-      const response = await fetch(`/api/books/${id}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify({
-          rating,
-          text: review
-        })
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to submit review');
-      }
-
-      const updatedBook = await response.json();
-      setBook(updatedBook);
-      setReview('');
-      setRating(5);
-    } catch (err) {
-      console.error('Error submitting review:', err);
-      setError('Failed to submit review. Please try again.');
-    }
-  };
 
 export default BookDetails;
